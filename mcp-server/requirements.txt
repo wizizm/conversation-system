@@ -1,0 +1,13 @@
+# MCP Server Dependencies
+mcp>=1.9.2
+pydantic>=2.0.0
+httpx>=0.24.0
+
+# Integration with conversation system
+requests>=2.28.0
+redis>=4.0.0
+python-dotenv>=1.0.0
+
+# Utilities
+click>=8.0.0
+structlog>=23.0.0

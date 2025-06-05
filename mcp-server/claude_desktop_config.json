@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "conversation-system": {
+      "command": "python",
+      "args": ["${PROJECT_ROOT}/mcp-server/main.py"],
+      "env": {
+        "CONVERSATION_API_URL": "http://localhost:8000"
+      }
+    }
+  }
+}
+
+// 注意: このファイルは Claude Desktop の設定ファイルです
+// 実際に使用する場合は、${PROJECT_ROOT} を実際のプロジェクトパスに置き換えてください
+// 
+// 設定場所: ~/Library/Application Support/Claude/claude_desktop_config.json (macOS)
+//          %APPDATA%\Claude\claude_desktop_config.json (Windows)
+//
+// 実際の設定例:
+// "args": ["/home/username/conversation-system/mcp-server/main.py"]
+// または
+// "args": ["/Users/username/conversation-system/mcp-server/main.py"]
