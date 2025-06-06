@@ -1,8 +1,8 @@
 # Core dependencies
-redis>=4.0.0
-fastapi>=0.100.0
-uvicorn[standard]>=0.20.0
-pydantic>=2.0.0
+redis>=6.2.0
+fastapi>=0.115.12
+uvicorn[standard]>=0.34.3
+pydantic>=2.11.5
 python-multipart
 
 # Data processing
@@ -20,7 +20,7 @@ typer
 schedule
 
 # Async support
-aioredis>=2.0.0
+aioredis>=2.0.1
 
 # Security
-cryptography>=42.0.0
+cryptography>=45.0.3
