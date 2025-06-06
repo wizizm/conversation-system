@@ -13,6 +13,12 @@ from typing import Any, Dict, List
 from uuid import uuid4
 
 import redis
+from dotenv import load_dotenv
+
+# load .env with explicit path
+from pathlib import Path
+env_path = Path(__file__).parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -44,22 +50,28 @@ class ConversationInsight:
 class ConversationRedisManager:
     """Redis-based conversation management system"""
     
-    def __init__(self, host='localhost', port=6379, db=0, decode_responses=True):
-        """Initialize Redis connection with error handling"""
+    def __init__(self, host='localhost', port=6379, db=0, password=None, 
+                 use_ssl=False, decode_responses=True):
+        """Initialize Redis connection with Upstash support"""
         try:
             self.redis_client = redis.Redis(
                 host=host, 
                 port=port, 
-                db=db, 
+                db=db,
+                password=password,
+                ssl=use_ssl,
                 decode_responses=decode_responses,
-                socket_connect_timeout=5,
-                socket_timeout=5
+                socket_connect_timeout=10,
+                socket_timeout=10,
+                retry_on_timeout=True,
+                health_check_interval=30
             )
-            # Test connection
+            
+            # 接続テスト
             self.redis_client.ping()
             logger.info("Redis connection established successfully")
-        except redis.ConnectionError:
-            logger.error("Failed to connect to Redis. Ensure Redis is running.")
+        except redis.ConnectionError as e:
+            logger.error(f"Failed to connect to Redis: {e}")
             raise
     
     def save_message(self, role: str, content: str, topics: List[str] = None, 

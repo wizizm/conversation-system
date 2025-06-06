@@ -6,14 +6,21 @@ Production-ready API for conversation storage and retrieval
 
 import logging
 import os
+from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from conversation_redis_manager import ConversationRedisManager
+from dotenv import load_dotenv
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+
+# load .env with explicit path
+from pathlib import Path
+env_path = Path(__file__).parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
 
 # Setup logging
 logging.basicConfig(
@@ -52,11 +59,56 @@ class ContextRequest(BaseModel):
 # Global Redis manager
 redis_manager = None
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application lifespan"""
+    global redis_manager
+    # Startup
+    try:
+        # デバッグ: 環境変数の確認
+        logger.info(f"Environment variables loaded from: {env_path}")
+        logger.info(f"Environment file exists: {env_path.exists()}")
+        
+        redis_host = os.getenv('REDIS_HOST', 'localhost')
+        redis_port = int(os.getenv('REDIS_PORT', 6379))
+        redis_db = int(os.getenv('REDIS_DB', 0))
+        redis_password = os.getenv('REDIS_PASSWORD')
+        redis_ssl = os.getenv('REDIS_SSL', 'false').lower() == 'true'
+        
+        # デバッグ: 環境変数の値確認
+        logger.info(f"REDIS_HOST: {redis_host}")
+        logger.info(f"REDIS_PORT: {redis_port}")
+        logger.info(f"REDIS_PASSWORD: {'***' if redis_password else 'None'}")
+        logger.info(f"REDIS_SSL: {redis_ssl}")
+        
+        logger.info(f"Connecting to Redis at {redis_host}:{redis_port} (SSL: {redis_ssl})")
+        
+        redis_manager = ConversationRedisManager(
+            host=redis_host,
+            port=redis_port,
+            db=redis_db,
+            password=redis_password,
+            use_ssl=redis_ssl
+        )
+        
+        logger.info("Redis connection established successfully")
+        
+    except Exception as e:
+        logger.error(f"Failed to connect to Redis: {e}")
+        raise
+    
+    yield
+    
+    # Shutdown
+    if redis_manager:
+        logger.info("Shutting down Redis connection")
+
 # FastAPI app
 app = FastAPI(
     title="Conversation Management API",
     description="Production-ready API for conversation storage and knowledge management",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # CORS middleware
@@ -67,34 +119,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.on_event("startup")
-async def startup_event():
-    """Initialize Redis connection on startup"""
-    global redis_manager
-    try:
-        redis_host = os.getenv('REDIS_HOST', 'localhost')
-        redis_port = int(os.getenv('REDIS_PORT', 6379))
-        redis_db = int(os.getenv('REDIS_DB', 0))
-        
-        redis_manager = ConversationRedisManager(
-            host=redis_host,
-            port=redis_port,
-            db=redis_db
-        )
-        
-        logger.info(f"Connected to Redis at {redis_host}:{redis_port}")
-        
-    except Exception as e:
-        logger.error(f"Failed to connect to Redis: {e}")
-        raise
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on shutdown"""
-    global redis_manager
-    if redis_manager:
-        logger.info("Shutting down Redis connection")
 
 # API Routes
 @app.get("/health")

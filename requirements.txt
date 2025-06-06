@@ -17,6 +17,7 @@ regex
 python-dotenv
 click
 typer
+schedule
 
 # Async support
 aioredis>=2.0.0
