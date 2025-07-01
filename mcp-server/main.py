@@ -59,10 +59,10 @@ class EnhancedConversationAPI:
             payload = {
                 "role": "user",
                 "content": user_msg,
-                "topics": topics or [],
-                "keywords": keywords or []
-            }
-            
+            "topics": topics or [],
+            "keywords": keywords or []
+        }
+        
             # Save user message
             user_response = await self.client.post(f"{self.base_url}/messages", json=payload)
             user_response.raise_for_status()
@@ -105,10 +105,10 @@ class EnhancedConversationAPI:
         """获取适应性上下文"""
         try:
             payload = {
-                "limit": limit,
-                "detail_level": detail_level,
-                "format_type": format_type
-            }
+            "limit": limit,
+            "detail_level": detail_level,
+            "format_type": format_type
+        }
             response = await self.client.post(f"{self.base_url}/context", json=payload)
             response.raise_for_status()
             return response.json()
@@ -120,10 +120,10 @@ class EnhancedConversationAPI:
         """搜索会话增强版"""
         try:
             payload = {
-                "query_terms": query_terms,
-                "limit": limit,
-                "search_scope": search_scope
-            }
+            "query_terms": query_terms,
+            "limit": limit,
+            "search_scope": search_scope
+        }
             response = await self.client.post(f"{self.base_url}/search", json=payload)
             response.raise_for_status()
             return response.json()
@@ -146,7 +146,7 @@ class EnhancedConversationAPI:
         except Exception as e:
             logger.error(f"Error saving message: {e}")
             raise
-
+    
     async def analyze_compression(self, text: str) -> Dict[str, Any]:
         """压缩分析"""
         try:
@@ -165,15 +165,15 @@ class EnhancedConversationAPI:
         """保存洞察增强版"""
         try:
             payload = {
-                "insight_type": insight_type,
-                "content": content,
-                "summary": summary,
+            "insight_type": insight_type,
+            "content": content,
+            "summary": summary,
                 "source_messages": source_messages or [],
-                "relevance_score": relevance_score,
-                "business_area": business_area,
-                "impact_level": impact_level,
-                "actionable_items": actionable_items or []
-            }
+            "relevance_score": relevance_score,
+            "business_area": business_area,
+            "impact_level": impact_level,
+            "actionable_items": actionable_items or []
+        }
             response = await self.client.post(f"{self.base_url}/insights", json=payload)
             response.raise_for_status()
             result = response.json()
