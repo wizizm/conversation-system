@@ -4,7 +4,7 @@ set -e
 # 🌟 Enhanced Conversation System - 完整备份脚本 v2.0
 # 支持Docker和非Docker环境的智能备份
 
-BACKUP_DIR="./backups"
+BACKUP_DIR="/app/backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 PROJECT_DIR=$(pwd)
 

@@ -4,8 +4,8 @@ set -e
 # 🐳 Docker MCP Server - 自动备份脚本
 # 每小时运行，只保留最近3份备份数据
 
-BACKUP_DIR="/Users/linwenjie/Documents/知识库/conversations/backups"
-DATA_DIR="/Users/linwenjie/Documents/知识库/conversations/data"
+BACKUP_DIR="/app/backups"
+DATA_DIR="/app/data"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 HOUR_MARK=$(date +%Y%m%d_%H)
 

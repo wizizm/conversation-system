@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-BACKUP_DIR="./backups"
+BACKUP_DIR="/app/backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 echo "💾 手動バックアップを実行中..."

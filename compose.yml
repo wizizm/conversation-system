@@ -33,7 +33,7 @@ services:
       - ./app:/app
       - conversation_data:/app/data
       - conversation_logs:/app/logs
-      - /Users/linwenjie/Documents/知识库/conversations:/app/conversations # 会話ファイル保存用
+      - conversation_data_conversations:/app/conversations # 会話ファイル保存用
     depends_on:
       redis:
         condition: service_healthy
@@ -72,11 +72,13 @@ services:
     volumes:
       # 挂载数据目录（与主应用共享）
       - conversation_data:/app/data
-      - conversation_logs:/app/data/logs
+      - conversation_logs:/app/logs
       # 挂载专用备份目录到宿主机
-      - /Users/linwenjie/Documents/知识库/conversations/backups:/app/backups
+      - conversation_backups:/app/backups
       # 挂载会话文件目录
-      - /Users/linwenjie/Documents/知识库/conversations:/app/data/conversations
+      - conversation_data_conversations:/app/data/conversations
+      # 挂载redis目录
+      - redis_data:/app/data/redis
     depends_on:
       conversation_app:
         condition: service_healthy
@@ -152,7 +154,19 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /Users/linwenjie/Documents/知识库/conversations/data/app
+      device: /Users/linwenjie/Documents/知识库/conversations/data
+  conversation_data_conversations:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /Users/linwenjie/Documents/知识库/conversations/data/conversations
+  conversation_backups:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /Users/linwenjie/Documents/知识库/conversations/backups
   conversation_logs:
     driver: local
     driver_opts:

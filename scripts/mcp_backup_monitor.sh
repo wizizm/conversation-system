@@ -6,7 +6,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-BACKUP_DIR="$PROJECT_DIR/backups"
+BACKUP_DIR="/app/backups"
 
 echo "🔍 Docker MCP Server 备份监控器"
 echo "=================================="

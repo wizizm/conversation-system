@@ -4,7 +4,7 @@ set -e
 # 🌟 Enhanced Conversation System - 数据恢复脚本 v2.0
 # 支持从备份文件完整恢复系统数据
 
-BACKUP_DIR="./backups"
+BACKUP_DIR="/app/backups"
 TIMESTAMP="$1"
 
 if [ -z "$TIMESTAMP" ]; then
@@ -49,7 +49,7 @@ pkill -f "main.py" 2>/dev/null || echo "  - MCP服务未运行"
 # 备份当前数据（以防万一）
 echo ""
 echo "💾 备份当前数据（安全措施）..."
-CURRENT_BACKUP_DIR="./backups/pre_restore_$(date +%Y%m%d_%H%M%S)"
+CURRENT_BACKUP_DIR="/app/backups/pre_restore_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$CURRENT_BACKUP_DIR"
 cp -r data "$CURRENT_BACKUP_DIR/" 2>/dev/null || echo "  - 无当前数据需要备份"
 cp -r conversations "$CURRENT_BACKUP_DIR/" 2>/dev/null || echo "  - 无会话文件需要备份"
@@ -57,9 +57,9 @@ cp -r conversations "$CURRENT_BACKUP_DIR/" 2>/dev/null || echo "  - 无会话文
 # 恢复Redis数据
 echo ""
 echo "🔴 恢复Redis数据..."
-mkdir -p data/redis
+mkdir -p /app/data/redis
 if [ -f "$BACKUP_DIR/redis_${TIMESTAMP}.rdb" ]; then
-    cp "$BACKUP_DIR/redis_${TIMESTAMP}.rdb" data/redis/dump.rdb
+    cp "$BACKUP_DIR/redis_${TIMESTAMP}.rdb" /app/data/redis/dump.rdb
     echo "  ✅ Redis RDB文件已恢复"
 else
     echo "  ⚠️ Redis RDB备份文件不存在"
