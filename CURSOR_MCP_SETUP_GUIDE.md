@@ -1,19 +1,32 @@
-# Cursor MCP Server 配置指南
+# Cursor MCP Setup Guide for Conversation System
 
-## 🎯 系统状态
+本指南将帮助你在Cursor中配置并使用conversation-system的MCP Server（修正版本）。
 
-✅ **Docker服务运行状态**: 本地模式运行 (推荐)
-✅ **MCP Server**: 完全正常 (7/7 核心功能通过测试)
-✅ **API服务**: http://localhost:9000 正常响应
-✅ **Redis**: localhost:6379 正常运行
-✅ **数据挂载**: `/Users/linwenjie/Documents/知识库/conversations`
+## 🚀 快速开始
 
-## 🔧 Cursor MCP 配置
+### 1. 启动Docker服务（仅API和Redis）
 
-### 方法1: 直接运行配置 (推荐)
+```bash
+# 启动API和Redis服务
+docker-compose up -d conversation_app conversation_redis
 
-将以下配置添加到 Cursor 的 MCP 配置文件中：
+# 检查服务状态
+docker ps
+```
 
+### 2. 验证服务运行
+
+```bash
+# 检查主API服务
+curl http://localhost:9000/health
+
+# 检查Redis连接
+docker exec conversation_redis redis-cli ping
+```
+
+## 📱 Cursor配置
+
+### 最终正确配置
 ```json
 {
   "mcpServers": {
@@ -32,140 +45,101 @@
 }
 ```
 
-### 方法2: 脚本启动配置
+### 配置文件位置
+- **macOS**: `~/Library/Application Support/Cursor/User/settings.json`
+- **Windows**: `%APPDATA%\\Cursor\\User\\settings.json`
+- **Linux**: `~/.config/Cursor/User/settings.json`
 
-如果需要通过脚本启动，使用：
+## 🏗️ 架构说明
 
-```json
-{
-  "mcpServers": {
-    "conversation-system": {
-      "command": "bash",
-      "args": [
-        "/Users/linwenjie/workspace/conversation-system/scripts/start_mcp_for_cursor.sh"
-      ],
-      "env": {
-        "CONVERSATION_API_URL": "http://localhost:9000"
-      }
-    }
-  }
-}
+### 最终架构（稳定版本）
+```
+Cursor (MCP Client)
+    ↓ STDIO
+MCP Server (本地运行)
+    ↓ HTTP API
+Docker Services:
+  - API Server (端口9000)
+  - Redis (端口6379)
 ```
 
-## 🚀 启动步骤
+### 为什么选择这种架构？
+1. **STDIO传输稳定**：MCP的原生传输方式，与Cursor完美兼容
+2. **Docker服务隔离**：API和Redis在容器中，便于管理
+3. **本地MCP响应快**：避免了容器间通信的复杂性
+4. **易于调试**：MCP Server日志直接可见
 
-### 1. 启动系统服务
+## 🛠️ 依赖安装
+
+### 本地环境依赖
 ```bash
 cd /Users/linwenjie/workspace/conversation-system
-make start-all
+pip install fastmcp httpx structlog redis python-dotenv requests click
 ```
 
-### 2. 验证服务状态
-```bash
-make status
-```
+## 🔧 故障排除
 
-### 3. 测试MCP功能
-```bash
-make test-mcp
-```
+### 常见问题
 
-### 4. 应用Cursor配置
-将上述JSON配置添加到Cursor的MCP配置文件中。
+1. **MCP Server无法启动**
+   ```bash
+   # 检查依赖是否安装
+   pip list | grep fastmcp
+   
+   # 手动测试MCP Server
+   cd mcp-server && python main.py
+   ```
 
-## 📊 系统功能
+2. **API连接失败**
+   ```bash
+   # 检查Docker服务
+   docker ps | grep conversation
+   
+   # 测试API连接
+   curl http://localhost:9000/health
+   ```
 
-### ✅ 核心功能 (7/7 通过测试)
-1. **Enhanced API连接** - 成功连接v2.0 API
-2. **Enhanced消息功能** - 智能压缩(36%节约率) + 技术用语提取
-3. **适应性上下文获取** - 4个详细级别的上下文管理
-4. **技术用语搜索** - 智能搜索和分类
-5. **压缩分析** - 自动内容压缩和要点提取
-6. **扩展分析** - 统计和见解生成
-7. **Enhanced MCP启动** - 完整的MCP服务器功能
+3. **Cursor连接问题**
+   - 确保路径正确指向本地文件
+   - 重启Cursor使配置生效
+   - 检查Python环境是否可访问
 
-### 💾 数据管理
-- **数据目录**: `/Users/linwenjie/Documents/知识库/conversations/data`
-- **日志目录**: `/Users/linwenjie/Documents/知识库/conversations/logs`
-- **备份目录**: `/Users/linwenjie/Documents/知识库/conversations/backups`
-- **会话文件**: `/Users/linwenjie/Documents/知识库/conversations`
-
-### 🔄 自动备份
-- **频率**: 每小时自动备份
-- **保留**: 最近3份备份
-- **监控**: `make backup-monitor`
-
-## 🛠️ 常用命令
+### 验证步骤
 
 ```bash
-# 启动系统
-make start-all
+# 1. 启动Docker服务
+docker-compose up -d conversation_app conversation_redis
 
-# 查看状态
-make status
+# 2. 测试本地MCP Server
+cd mcp-server && echo '{"jsonrpc":"2.0","id":"test","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test","version":"1.0"}}}' | python main.py
 
-# 查看日志
-make logs-mcp
-
-# 测试功能
-make test-all
-
-# 备份管理
-make backup
-make backup-monitor
-
-# 停止服务
-make stop
-```
-
-## 🔍 故障排除
-
-### MCP Server无响应
-```bash
-# 重启MCP Server
-pkill -f "main.py"
-cd mcp-server && python main.py &
-```
-
-### API服务异常
-```bash
-# 检查API健康状态
+# 3. 验证API连接
 curl http://localhost:9000/health
 ```
 
-### Redis连接问题
-```bash
-# 检查Redis状态
-redis-cli ping
-```
+## 🎯 使用示例
 
-## 📈 性能指标
+配置完成后，在Cursor中可以使用：
 
-当前系统性能：
-- **压缩效率**: 36% 存储节约
-- **技术识别**: 12个术语自动提取  
-- **响应时间**: < 3秒
-- **数据统计**: 444 bytes总计节约
-- **消息存储**: 实时压缩存储
-- **上下文管理**: 4级自适应获取
+1. **记录对话**: `record_current_conversation`
+2. **搜索历史**: `search_conversation_history`
+3. **分析上下文**: `get_conversation_context`
+4. **智能压缩**: `analyze_text_compression`
 
-## ⚡ 快速验证
+## 📋 部署总结
 
-运行完整测试确保系统正常：
-```bash
-make test-all
-```
+### ✅ 解决的问题
+- Docker STDIO传输问题
+- FastMCP HTTP兼容性问题
+- 容器间网络复杂性
+- 依赖管理问题
 
-预期结果: `7成功, 0警告, 0错误`
-
-## 🎯 下一步
-
-1. 将配置文件内容复制到Cursor的MCP配置中
-2. 重启Cursor使配置生效
-3. 在Cursor中测试MCP连接
-4. 开始使用Enhanced Conversation System功能
+### 🏆 最终优势
+- 稳定的STDIO传输
+- 简化的架构
+- 更好的调试体验
+- 保持Docker的便利性
 
 ---
-**系统版本**: v2.0.0  
-**最后更新**: $(date)  
-**状态**: 生产就绪 🚀 
+
+**🚀 现在您可以在Cursor中使用稳定的conversation-system MCP功能了！**

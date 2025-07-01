@@ -1,7 +1,14 @@
-# MCP Server Dependencies
-mcp>=1.9.3
-pydantic>=2.11.5
-httpx>=0.28.1
+# FastMCP 2.0 Dependencies (supports HTTP transport)
+fastmcp>=2.9.0
+mcp>=1.9.4
+uvicorn>=0.24.0
+starlette>=0.46.0
+httpx>=0.25.0
+structlog>=25.4.0
+redis>=6.2.0
+python-dotenv>=1.1.0
+requests>=2.32.0
+click>=8.2.0
 
 # Integration with conversation system
 requests>=2.32.3
@@ -11,3 +18,7 @@ python-dotenv>=1.1.0
 # Utilities
 click>=8.2.1
 structlog>=25.4.0
+
+# New dependencies
+fastapi>=0.104.0
+pydantic>=2.5.0

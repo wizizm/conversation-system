@@ -29,7 +29,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('../logs/app.log'),
+        logging.FileHandler('/app/logs/app.log'),
         logging.StreamHandler()
     ]
 )
@@ -176,11 +176,17 @@ async def save_message_enhanced(
         # Get message details for response
         msg_data = redis_manager.redis_client.hgetall(f"message:{message_id}")
         
+        # Calculate bytes saved from compression ratio and content length
+        compression_ratio = float(msg_data.get('compression_ratio', 1.0))
+        content_length = int(msg_data.get('content_length', 0))
+        bytes_saved = int((1 - compression_ratio) * content_length) if compression_ratio < 1.0 else 0
+        
         return {
             "message_id": message_id,
             "status": "saved",
-            "compression_ratio": float(msg_data.get('compression_ratio', 1.0)),
-            "content_length": int(msg_data.get('content_length', 0)),
+            "compression_ratio": compression_ratio,
+            "content_length": content_length,
+            "bytes_saved": bytes_saved,
             "summary_generated": bool(msg_data.get('summary_short')),
             "technical_terms_extracted": len(json.loads(msg_data.get('technical_terms', '[]')))
         }

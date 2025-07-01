@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "conversation-system": {
+      "url": "http://localhost:3001/sse"
+    }
+  }
+} 

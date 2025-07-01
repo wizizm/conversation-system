@@ -28,7 +28,7 @@ services:
     container_name: conversation_app
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "9000:9000"
     volumes:
       - ./app:/app
       - conversation_data:/app/data
@@ -60,13 +60,15 @@ services:
       timeout: 10s
       retries: 3
 
-  # 🤖 Enhanced MCP Server with Auto Backup
+  # 🤖 Enhanced MCP Server with Auto Backup + SSE Support
   mcp_server:
     build:
       context: ./mcp-server
       dockerfile: Dockerfile
     container_name: conversation_mcp_server
     restart: unless-stopped
+    ports:
+      - "3001:3001"  # MCP Server SSE端口
     volumes:
       # 挂载数据目录（与主应用共享）
       - conversation_data:/app/data
@@ -79,18 +81,20 @@ services:
       conversation_app:
         condition: service_healthy
     environment:
-      - CONVERSATION_API_URL=http://conversation_app:8000
+      - CONVERSATION_API_URL=http://conversation_app:9000
       - BACKUP_RETENTION_COUNT=3  # 保留最近3份备份
       - LOG_LEVEL=INFO
       - TZ=Asia/Shanghai  # 设置时区
+      - MCP_SERVER_HOST=0.0.0.0  # 允许外部连接
+      - MCP_SERVER_PORT=3001     # MCP Server端口
     networks:
       - conversation_network
     healthcheck:
-      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 15s
     labels:
       - "conversation.service=mcp-server"
       - "conversation.backup=auto"

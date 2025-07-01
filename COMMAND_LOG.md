@@ -507,4 +507,148 @@ tail -f logs/backup.log
 # 清理临时文件
 find . -name "*.tmp" -delete
 find . -name "*.pyc" -delete
+```
+
+# 2025-07-01 - MCP API路径修复
+
+## Docker操作
+```bash
+# 重新构建并启动所有服务
+cd /Users/linwenjie/workspace/conversation-system
+docker-compose -f compose.yml down && docker-compose -f compose.yml up --build -d
+
+# 检查容器状态
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# 查看MCP服务器日志
+docker-compose -f compose.yml logs --tail=20 mcp_server
+```
+
+## API测试
+```bash
+# 检查API服务根路径
+curl -s http://localhost:9000/ | jq
+
+# 测试MCP初始化
+curl -s -X POST http://localhost:3001/mcp/ \
+-H "Content-Type: application/json" \
+-H "Accept: application/json, text/event-stream" \
+-d '{
+  "jsonrpc": "2.0",
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {"tools": {}},
+    "clientInfo": {"name": "test-client", "version": "1.0.0"}
+  },
+  "id": 1
+}'
+```
+
+## 代码修复
+```bash
+# 修复API调用路径
+# mcp-server/main.py 中的端点修正：
+# /conversations/enhanced → /messages
+# /conversations/search → /search  
+# /conversations/context → /context
+# /analysis/compression → /analyze/compression
+```
+
+# 2025-07-01 - SSE传输协议MCP服务器实现
+
+## 架构重构
+```bash
+# 备份原有实现
+mv mcp-server/main.py mcp-server/main.py.backup
+
+# 重新创建SSE版本
+cat > mcp-server/main.py << 'EOF'
+# SSE MCP Server implementation
+EOF
+```
+
+## 依赖配置
+```bash
+# 更新requirements.txt支持FastAPI+SSE
+# fastapi>=0.104.0
+# uvicorn>=0.24.0
+# httpx>=0.25.0
+# pydantic>=2.5.0
+```
+
+## 服务部署测试
+```bash
+# 重建并启动服务
+docker-compose -f compose.yml down && docker-compose -f compose.yml up --build -d
+
+# 检查服务状态
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# 健康检查
+curl -s http://localhost:3001/health | jq
+curl -s http://localhost:3001/ | jq
+```
+
+## MCP协议测试
+```bash
+# 1. MCP初始化
+curl -s -X POST http://localhost:3001/message \
+-H "Content-Type: application/json" \
+-d '{
+  "jsonrpc": "2.0",
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2024-11-05",
+    "capabilities": {"tools": {}},
+    "clientInfo": {"name": "test-client", "version": "1.0.0"}
+  },
+  "id": 1
+}' | jq
+
+# 2. 获取工具列表
+curl -s -X POST http://localhost:3001/message \
+-H "Content-Type: application/json" \
+-d '{
+  "jsonrpc": "2.0",
+  "method": "tools/list",
+  "params": {},
+  "id": 2
+}' | jq
+
+# 3. 调用工具
+curl -s -X POST http://localhost:3001/message \
+-H "Content-Type: application/json" \
+-d '{
+  "jsonrpc": "2.0",
+  "method": "tools/call",
+  "params": {
+    "name": "record_current_conversation_tool",
+    "arguments": {
+      "user_message": "测试SSE版本的MCP服务器",
+      "assistant_message": "SSE版本已成功实现并正在运行！",
+      "topics": ["SSE", "MCP", "测试"],
+      "keywords": ["SSE传输", "MCP协议", "成功"]
+    }
+  },
+  "id": 3
+}' | jq
+```
+
+## SSE连接测试
+```bash
+# 测试SSE端点（需要中断，因为是持续连接）
+curl -s http://localhost:3001/sse | head -5
+```
+
+## 配置更新
+```bash
+# 更新Cursor MCP配置为SSE端点
+echo '{
+  "mcpServers": {
+    "conversation-system": {
+      "url": "http://localhost:3001/sse"
+    }
+  }
+}' > cursor_mcp_sse_config.json
 ``` 
