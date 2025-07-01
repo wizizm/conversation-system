@@ -29,8 +29,8 @@ RUN mkdir -p /app/data /app/logs /app/backups
 COPY docker_backup.sh /app/docker_backup.sh
 RUN chmod +x /app/docker_backup.sh
 
-# 设置cron任务（每小时运行备份）
-RUN echo "0 * * * * cd /app && /app/docker_backup.sh >> /app/logs/backup.log 2>&1" > /etc/cron.d/backup-cron
+# 设置cron任务（每天11:00和17:00运行备份）
+RUN echo "0 11,17 * * * cd /app && /app/docker_backup.sh >> /app/logs/backup.log 2>&1" > /etc/cron.d/backup-cron
 RUN chmod 0644 /etc/cron.d/backup-cron
 RUN crontab /etc/cron.d/backup-cron
 

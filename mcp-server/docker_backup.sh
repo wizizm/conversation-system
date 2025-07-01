@@ -60,9 +60,9 @@ if [ -n "$BACKUP_FILES" ]; then
     BACKUP_COUNT=$(echo "$BACKUP_FILES" | wc -l)
     echo "📊 当前备份文件数量: $BACKUP_COUNT"
     
-    if [ "$BACKUP_COUNT" -gt 3 ]; then
-        # 保留最新的3个，删除其余的
-        OLD_BACKUPS=$(echo "$BACKUP_FILES" | tail -n +4)
+    if [ "$BACKUP_COUNT" -gt 10 ]; then
+        # 保留最新的10个，删除其余的
+        OLD_BACKUPS=$(echo "$BACKUP_FILES" | tail -n +11)
         
         for backup in $OLD_BACKUPS; do
             # 提取时间戳
@@ -82,7 +82,7 @@ if [ -n "$BACKUP_FILES" ]; then
         REMAINING_COUNT=$(ls -1 "$BACKUP_DIR"/mcp_data_*.tar.gz 2>/dev/null | wc -l)
         echo "✅ 清理完成，剩余备份数量: $REMAINING_COUNT"
     else
-        echo "✅ 备份数量未超过3个，无需清理"
+        echo "✅ 备份数量未超过10个，无需清理"
     fi
 else
     echo "⚠️ 未找到备份文件"
