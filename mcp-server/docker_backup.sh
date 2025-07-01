@@ -95,15 +95,15 @@ echo "================="
 echo "✅ 备份时间: $(date)"
 echo "📁 备份目录: $BACKUP_DIR"
 echo "📊 当前备份文件:"
-ls -lht "$BACKUP_DIR"/mcp_data_*.tar.gz 2>/dev/null | head -3 || echo "  无备份文件"
+ls -lht "$BACKUP_DIR"/mcp_data_*.tar.gz 2>/dev/null | head -10 || echo "  无备份文件"
 
 echo ""
 echo "💾 磁盘使用情况:"
 du -sh "$BACKUP_DIR" 2>/dev/null || echo "  无法获取磁盘使用信息"
 
 echo ""
-echo "🎯 备份保留策略: 最近3份数据"
-echo "⏰ 下次备份时间: $(date -d '+1 hour' '+%Y-%m-%d %H:00:00')"
+echo "🎯 备份保留策略: 最近10份数据"
+echo "⏰ 备份时间: 每天11：00和17：00"
 echo ""
 echo "✅ [$(date)] Docker MCP Server 自动备份完成！"
 
