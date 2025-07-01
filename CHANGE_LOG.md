@@ -295,3 +295,50 @@
 - ✅ 向后兼容性（通过软链接）
 
 **备注**: 此变更将所有持久化数据统一存储到用户知识库目录，便于数据管理和备份。 
+
+## 2024-01-XX - Git仓库问题修复 + 数据同步功能
+
+### 🔧 Git仓库问题修复
+**问题**: 切换Git仓库后出现软链接相关错误
+- `fatal: pathspec is beyond a symbolic link`
+- Git无法处理软链接内的.gitkeep文件
+
+**解决方案**:
+1. **删除软链接**: 移除所有软链接目录 (data, logs, backups, conversations)
+2. **恢复目录结构**: 重新创建正常的目录结构
+3. **创建.gitkeep文件**: 保持目录结构但忽略内容
+4. **更新.gitignore**: 添加对data/app/*和conversations/*的忽略规则
+5. **Git提交**: 成功提交31个文件的更改 (4030行新增)
+
+### 🔄 数据同步功能
+**新增功能**: 创建数据同步工具在项目目录和知识库目录间同步
+
+**新增文件**:
+- `scripts/sync_data_to_knowledge_base.sh` - 交互式数据同步脚本
+- `make sync-data` - Makefile快捷命令
+
+**同步选项**:
+1. 项目 → 知识库 (备份数据到知识库)
+2. 知识库 → 项目 (从知识库恢复数据)
+3. 双向同步 (智能合并最新数据)
+4. 状态对比 (查看目录大小对比)
+
+**推送状态**: ✅ 成功推送到远程仓库
+- 提交ID: cd9f54d
+- 推送大小: 43.49 KiB
+- 文件变更: 31个文件
+
+**验证结果**: 
+- ✅ Git状态正常: `working tree clean`
+- ✅ 远程同步: `Your branch is up to date with 'origin/main'`
+- ✅ 系统运行: MCP Server正常运行
+- ✅ 配置就绪: Cursor MCP配置文件可用
+
+**使用方法**:
+```bash
+# 启动数据同步工具
+make sync-data
+
+# 或直接运行脚本
+./scripts/sync_data_to_knowledge_base.sh
+``` 

@@ -1,7 +1,7 @@
 # Enhanced Conversation System - Makefile
 # 简化MCP Server和备份管理操作
 
-.PHONY: help start-all start-mcp start-docker stop backup backup-monitor status logs clean
+.PHONY: help start-all start-mcp start-docker stop backup backup-monitor sync-data status logs clean
 
 # 默认目标
 help:
@@ -21,6 +21,7 @@ help:
 	@echo "  make backup        - 执行手动备份"
 	@echo "  make backup-monitor - 打开备份监控器"
 	@echo "  make backup-auto   - 设置自动备份"
+	@echo "  make sync-data     - 数据同步工具"
 	@echo ""
 	@echo "📊 监控与状态:"
 	@echo "  make status        - 查看服务状态"
@@ -86,6 +87,11 @@ backup-monitor:
 backup-auto:
 	@echo "⏰ 设置自动备份..."
 	@./scripts/setup_auto_backup.sh
+
+# 数据同步工具
+sync-data:
+	@echo "🔄 启动数据同步工具..."
+	@./scripts/sync_data_to_knowledge_base.sh
 
 # 查看服务状态
 status:
