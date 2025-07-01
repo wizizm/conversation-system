@@ -112,6 +112,14 @@ data/redis/
 dump.rdb
 appendonly.aof
 
+# アプリケーションデータ
+data/app/*
+!data/app/.gitkeep
+
+# 会話ファイル
+conversations/*
+!conversations/.gitkeep
+
 # SQLite データベース
 *.db
 *.sqlite3

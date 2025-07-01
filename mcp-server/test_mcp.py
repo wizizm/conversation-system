@@ -32,7 +32,7 @@ def get_project_root():
 PROJECT_ROOT = get_project_root()
 TEST_CONFIG = {
     "mcp_server_path": os.path.join(PROJECT_ROOT, "mcp-server"),
-    "api_base_url": "http://localhost:8000",
+    "api_base_url": "http://localhost:9000",
     "test_timeout": 30,
     "mcp_timeout": 10
 }

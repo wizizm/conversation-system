@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM docker2.gf.com.cn/library/python:v1.0.0-3.11-ubuntu20.04
 
 # システムパッケージのインストール
 RUN apt-get update && apt-get install -y \

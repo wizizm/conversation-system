@@ -5,7 +5,7 @@
     "description": "MCP Server for conversation system integration with Claude Desktop"
   },
   "api": {
-    "base_url": "http://localhost:8000",
+    "base_url": "http://localhost:9000",
     "timeout": 30
   },
   "logging": {

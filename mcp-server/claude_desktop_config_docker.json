@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "conversation-system-docker": {
+      "command": "docker",
+      "args": [
+        "exec", 
+        "-i", 
+        "conversation_mcp_server", 
+        "python", 
+        "/app/main.py"
+      ],
+      "env": {
+        "CONVERSATION_API_URL": "http://localhost:8000"
+      }
+    }
+  }
+} 

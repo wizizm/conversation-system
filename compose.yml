@@ -33,7 +33,7 @@ services:
       - ./app:/app
       - conversation_data:/app/data
       - conversation_logs:/app/logs
-      - ./conversations:/app/conversations # 会話ファイル保存用
+      - /Users/linwenjie/Documents/知识库/conversations:/app/conversations # 会話ファイル保存用
     depends_on:
       redis:
         condition: service_healthy
@@ -59,6 +59,42 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  # 🤖 Enhanced MCP Server with Auto Backup
+  mcp_server:
+    build:
+      context: ./mcp-server
+      dockerfile: Dockerfile
+    container_name: conversation_mcp_server
+    restart: unless-stopped
+    volumes:
+      # 挂载数据目录（与主应用共享）
+      - conversation_data:/app/data
+      - conversation_logs:/app/data/logs
+      # 挂载专用备份目录到宿主机
+      - /Users/linwenjie/Documents/知识库/conversations/backups:/app/backups
+      # 挂载会话文件目录
+      - /Users/linwenjie/Documents/知识库/conversations:/app/data/conversations
+    depends_on:
+      conversation_app:
+        condition: service_healthy
+    environment:
+      - CONVERSATION_API_URL=http://conversation_app:8000
+      - BACKUP_RETENTION_COUNT=3  # 保留最近3份备份
+      - LOG_LEVEL=INFO
+      - TZ=Asia/Shanghai  # 设置时区
+    networks:
+      - conversation_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "conversation.service=mcp-server"
+      - "conversation.backup=auto"
+      - "conversation.retention=3"
 
   # conversation_web:
   #   build:
@@ -106,19 +142,19 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ./data/redis
+      device: /Users/linwenjie/Documents/知识库/conversations/data/redis
   conversation_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ./data/app
+      device: /Users/linwenjie/Documents/知识库/conversations/data/app
   conversation_logs:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ./logs
+      device: /Users/linwenjie/Documents/知识库/conversations/logs
 
 networks:
   conversation_network:

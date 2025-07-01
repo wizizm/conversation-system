@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "conversation-system": {
+      "command": "python3",
+      "args": ["/Users/linwenjie/workspace/conversation-system/mcp-server/main.py"],
+      "env": {
+        "CONVERSATION_API_URL": "http://localhost:8000"
+      }
+    }
+  }
+} 

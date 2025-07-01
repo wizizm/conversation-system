@@ -28,7 +28,7 @@ mcp = FastMCP("conversation-system")
 class EnhancedConversationAPI:
     """Enhanced API client for conversation system with v2.0 features"""
     
-    def __init__(self, base_url: str = "http://localhost:8000"):
+    def __init__(self, base_url: str = "http://localhost:9000"):
         self.base_url = base_url
     
     async def save_message(self, role: str, content: str, topics: List[str] = None, keywords: List[str] = None) -> Dict[str, Any]:
